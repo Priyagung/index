@@ -187,10 +187,10 @@
         </div>
         
         <div class="gallery">
-            <div class="photo"><img src="1.jpg" alt="If The World"></div>
-            <div class="photo"><img src="2.jpg" alt="Was Ending"></div>
-            <div class="photo"><img src="3.jpg" alt="I'd Wanna Be"></div>
-            <div class="photo"><img src="4.jpg" alt="Next To You"></div>
+            <div class="photo"><img src="images/1.jpg" alt="If The World"></div>
+            <div class="photo"><img src="images/2.jpg" alt="Was Ending"></div>
+            <div class="photo"><img src="images/3.jpg" alt="I'd Wanna Be"></div>
+            <div class="photo"><img src="images/4.jpg" alt="Next To You"></div>
         </div>
         
         <button id="play-music">Putar Musik</button>
@@ -203,7 +203,7 @@
     
     <script>
         // Variabel global untuk musik
-        let bgMusic = new Audio('die with a smile.mp3');
+        let bgMusic = new Audio('audio/die-with-a-smile.mp3');
         bgMusic.loop = true;
         let isPlaying = false;
 
@@ -212,20 +212,22 @@
             // Sembunyikan overlay
             document.getElementById('intro-overlay').style.display = 'none';
             
-            // Putar musik
-            playMusic();
+            // Coba putar musik
+            tryPlayMusic();
             
             // Buat balon-balon
             createBalloons();
         });
         
-        // Fungsi untuk memutar musik
-        function playMusic() {
+        // Fungsi untuk mencoba memutar musik
+        function tryPlayMusic() {
             bgMusic.play().then(() => {
                 isPlaying = true;
                 document.getElementById('play-music').textContent = 'Jeda Musik';
             }).catch(error => {
                 console.error("Gagal memutar musik:", error);
+                // Banyak browser membutuhkan interaksi pengguna untuk memutar audio
+                alert("Klik 'Putar Musik' untuk mendengarkan lagu!");
             });
         }
         
@@ -252,7 +254,7 @@
                 this.textContent = 'Putar Musik';
                 isPlaying = false;
             } else {
-                playMusic();
+                tryPlayMusic();
             }
         });
         
