@@ -1,0 +1,371 @@
+// Wait for the document to fully load
+document.addEventListener('DOMContentLoaded', function() {
+    // Show loading screen
+    const loadingScreen = document.createElement('div');
+    loadingScreen.className = 'loading';
+    loadingScreen.innerHTML = '<div class="loading-heart">❤️</div>';
+    document.body.appendChild(loadingScreen);
+    
+    // Preload images and audio
+    const imagesToPreload = [
+        '1.jpg', '2.jpg', '3.jpg', '4.jpg'
+    ];
+    
+    const preloadContainer = document.createElement('div');
+    preloadContainer.className = 'preload-images';
+    document.body.appendChild(preloadContainer);
+    
+    let loadedItems = 0;
+    const totalItems = imagesToPreload.length + 1; // +1 for audio
+    
+    // Preload images
+    imagesToPreload.forEach(src => {
+        const img = new Image();
+        img.onload = itemLoaded;
+        img.src = src;
+        preloadContainer.appendChild(img);
+    });
+    
+    // Music player setup
+    let bgMusic = new Audio('die with a smile.mp3');
+    bgMusic.addEventListener('canplaythrough', itemLoaded);
+    bgMusic.addEventListener('error', function() {
+        console.error("Error loading music");
+        itemLoaded(); // Still count it as loaded to avoid blocking
+    });
+    
+    bgMusic.loop = true;
+    let isPlaying = false;
+    
+    // Function to handle loaded items
+    function itemLoaded() {
+        loadedItems++;
+        if (loadedItems >= totalItems) {
+            // All items loaded, remove loading screen after a brief delay
+            setTimeout(() => {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.remove();
+                }, 500);
+            }, 1000);
+        }
+    }
+    
+    // Add data-caption attributes to photos
+    document.querySelectorAll('.photo').forEach((photo, index) => {
+        const captions = ["If The World", "Was Ending", "I'd Wanna Be", "Next To You"];
+        photo.setAttribute('data-caption', captions[index]);
+    });
+    
+    // Intro overlay functionality
+    const introOverlay = document.getElementById('intro-overlay');
+    const startButton = document.getElementById('start-button');
+    
+    startButton.addEventListener('click', function() {
+        introOverlay.style.opacity = '0';
+        setTimeout(() => {
+            introOverlay.style.display = 'none';
+            
+            // Try to play music
+            tryPlayMusic();
+            
+            // Create balloons
+            createBalloons();
+            
+            // Show confetti effect
+            showConfetti();
+        }, 500);
+    });
+    
+    // Function to try playing music
+    function tryPlayMusic() {
+        bgMusic.play().then(() => {
+            isPlaying = true;
+            document.getElementById('play-music').textContent = 'Jeda Musik';
+        }).catch(error => {
+            console.error("Gagal memutar musik:", error);
+            // Alert user nicely about browser audio policy
+            const musicAlert = document.createElement('div');
+            musicAlert.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: rgba(233, 30, 99, 0.9);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                z-index: 1000;
+                font-size: 14px;
+                max-width: 300px;
+                text-align: center;
+            `;
+            musicAlert.innerHTML = "Klik tombol 'Putar Musik' untuk mendengarkan lagu ulang tahunmu 🎵";
+            document.body.appendChild(musicAlert);
+            
+            setTimeout(() => {
+                musicAlert.style.opacity = '0';
+                setTimeout(() => musicAlert.remove(), 500);
+            }, 5000);
+        });
+    }
+    
+    // Create balloons with improved functionality
+    function createBalloons() {
+        const colors = ['#ff4081', '#9c27b0', '#3f51b5', '#2196f3', '#4caf50', '#ff9800', '#f44336', '#ffeb3b'];
+        const container = document.getElementById('balloons-container');
+        
+        // Clear existing balloons
+        container.innerHTML = '';
+        
+        // Create more balloons with different sizes
+        for (let i = 0; i < 50; i++) {
+            const balloon = document.createElement('div');
+            balloon.className = 'balloon';
+            
+            // Random size
+            const size = 20 + Math.random() * 40;
+            balloon.style.width = `${size}px`;
+            balloon.style.height = `${size * 1.25}px`;
+            
+            // Random position and animation details
+            balloon.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            balloon.style.left = `${Math.random() * 100}%`;
+            balloon.style.animationDuration = `${15 + Math.random() * 20}s`;
+            balloon.style.animationDelay = `${Math.random() * 10}s`;
+            
+            container.appendChild(balloon);
+        }
+    }
+    
+    // Function to display confetti effect
+    function showConfetti() {
+        const confettiContainer = document.createElement('div');
+        confettiContainer.className = 'confetti-container';
+        document.body.appendChild(confettiContainer);
+        
+        const colors = ['#ff4081', '#9c27b0', '#3f51b5', '#2196f3', '#4caf50', '#ff9800', '#f44336', '#ffeb3b'];
+        
+        // Create confetti pieces
+        for (let i = 0; i < 200; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            
+            // Random properties
+            const size = 5 + Math.random() * 10;
+            confetti.style.width = `${size}px`;
+            confetti.style.height = `${size}px`;
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            // Random position
+            confetti.style.left = `${Math.random() * 100}%`;
+            
+            // Random rotation
+            const rotation = Math.random() * 360;
+            confetti.style.transform = `rotate(${rotation}deg)`;
+            
+            // Random animation
+            const duration = 3 + Math.random() * 5;
+            const delay = Math.random() * 3;
+            
+            confetti.style.animation = `fall ${duration}s ease-in ${delay}s forwards`;
+            
+            // Add animation keyframes dynamically
+            const keyframes = `
+                @keyframes fall {
+                    0% { transform: translateY(-10px) rotate(${rotation}deg); opacity: 1; }
+                    70% { opacity: 1; }
+                    100% { transform: translateY(${window.innerHeight}px) rotate(${rotation + 360}deg); opacity: 0; }
+                }
+            `;
+            
+            const styleSheet = document.createElement('style');
+            styleSheet.textContent = keyframes;
+            document.head.appendChild(styleSheet);
+            
+            confettiContainer.appendChild(confetti);
+        }
+        
+        confettiContainer.style.display = 'block';
+        
+        // Remove confetti after animation completes
+        setTimeout(() => {
+            confettiContainer.remove();
+        }, 8000);
+    }
+    
+    // Music player controls
+    const playMusicBtn = document.getElementById('play-music');
+    playMusicBtn.addEventListener('click', function() {
+        if (isPlaying) {
+            bgMusic.pause();
+            this.textContent = 'Putar Musik';
+            isPlaying = false;
+        } else {
+            tryPlayMusic();
+        }
+    });
+    
+    // Enhanced surprise button with improved animation and more messages
+    const surpriseBtn = document.getElementById('surprise');
+    surpriseBtn.addEventListener('click', function() {
+        const messages = [
+            "Kamu adalah alasan aku senyum terus setiap hari! 😊",
+            "Aku bersyukur banget jadi pacar kamu! ❤️",
+            "Kamu itu hadiah dari buah kesabaranku nungguin kamu! 🎁",
+            "Every time I look into your eyes I fall more in love with you! 💕",
+            "Aku janji ga bakal pergi dari kamu! 🤞",
+            "Senyummu adalah hal favoritku di dunia ini! 😍",
+            "Kamu adalah hal terbaik yang pernah terjadi dalam hidupku! ✨",
+            "Aku ingin menghabiskan setiap ulang tahunmu bersamamu! 🎂",
+            "Semoga kita bersama selamanya! 💫",
+            "Bahagia itu sederhana, cukup bersamamu! 🥰"
+        ];
+        
+        // Create custom alert box instead of using browser alert
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        `;
+        
+        const messageBox = document.createElement('div');
+        messageBox.style.cssText = `
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 80%;
+            text-align: center;
+            position: relative;
+            animation: popIn 0.5s forwards;
+            transform: scale(0.8);
+            opacity: 0;
+        `;
+        
+        const keyframes = `
+            @keyframes popIn {
+                0% { transform: scale(0.8); opacity: 0; }
+                100% { transform: scale(1); opacity: 1; }
+            }
+        `;
+        
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = keyframes;
+        document.head.appendChild(styleSheet);
+        
+        // Get random message
+        const message = messages[Math.floor(Math.random() * messages.length)];
+        
+        messageBox.innerHTML = `
+            <div style="font-size: 24px; color: #e91e63; margin-bottom: 20px;">${message}</div>
+            <button style="background-color: #e91e63; color: white; border: none; padding: 10px 20px; 
+                    border-radius: 30px; cursor: pointer; font-size: 16px;">Tutup</button>
+        `;
+        
+        overlay.appendChild(messageBox);
+        document.body.appendChild(overlay);
+        
+        // Close on button click
+        messageBox.querySelector('button').addEventListener('click', function() {
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.remove(), 300);
+        });
+        
+        // Also close when clicking outside
+        overlay.addEventListener('click', function(event) {
+            if (event.target === overlay) {
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.remove(), 300);
+            }
+        });
+    });
+    
+    // Add interactive elements to photos
+    document.querySelectorAll('.photo').forEach(photo => {
+        photo.addEventListener('mouseover', function() {
+            // Random slight rotation on hover
+            const rotation = -5 + Math.random() * 10;
+            this.style.transform = `scale(1.05) rotate(${rotation}deg)`;
+        });
+        
+        photo.addEventListener('mouseout', function() {
+            this.style.transform = '';
+        });
+    });
+    
+    // Add parallax effect to heart
+    const heart = document.querySelector('.heart');
+    window.addEventListener('mousemove', function(e) {
+        const moveX = (e.clientX / window.innerWidth - 0.5) * 20;
+        const moveY = (e.clientY / window.innerHeight - 0.5) * 20;
+        heart.style.transform = `translate(${moveX}px, ${moveY}px) scale(1)`;
+    });
+    
+    // Add scroll effects
+    const animateOnScroll = function() {
+        const elements = document.querySelectorAll('.message, .gallery, .photo');
+        
+        elements.forEach(element => {
+            const elementPosition = element.getBoundingClientRect().top;
+            const screenHeight = window.innerHeight;
+            
+            if (elementPosition < screenHeight * 0.9) {
+                element.style.opacity = '1';
+                element.style.transform = 'translateY(0)';
+            }
+        });
+    };
+    
+    // Initialize elements for scroll animation
+    document.querySelectorAll('.message, .gallery, .photo').forEach(element => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(20px)';
+        element.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+    });
+    
+    // Fire on scroll
+    window.addEventListener('scroll', animateOnScroll);
+    
+    // Fire once on load after a short delay
+    setTimeout(animateOnScroll, 500);
+    
+    // Add countdown to footer if birthday is in future
+    const addCountdown = function() {
+        const footer = document.querySelector('footer');
+        const today = new Date();
+        
+        // You'll need to adjust the date based on the actual birthday
+        // This assumes the birthday is on March 6 (based on filename 230306)
+        const birthdayThisYear = new Date(today.getFullYear(), 2, 6); // Month is 0-based
+        
+        // If birthday already passed this year, set to next year
+        if (today > birthdayThisYear) {
+            birthdayThisYear.setFullYear(birthdayThisYear.getFullYear() + 1);
+        }
+        
+        // Calculate days difference
+        const diffTime = Math.abs(birthdayThisYear - today);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        // Only add countdown if birthday is not today
+        if (diffDays > 0) {
+            const countdownElem = document.createElement('div');
+            countdownElem.style.marginTop = '10px';
+            countdownElem.innerHTML = `<span style="font-weight: bold; color: #e91e63;">${diffDays}</span> hari lagi menuju ulang tahun berikutnya!`;
+            footer.appendChild(countdownElem);
+        }
+    };
+    
+    // Add countdown to footer
+    addCountdown();
+});
